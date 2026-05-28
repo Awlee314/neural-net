@@ -101,4 +101,6 @@ class SoftMax:
         return e_x / e_x.sum(axis=0)        
     
     def backward(x):
-        return x 
+        # Will be paired with CrossEntropy so we do not need the full Jacobian.
+        return x
+
