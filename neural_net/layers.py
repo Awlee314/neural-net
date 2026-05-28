@@ -89,3 +89,16 @@ class Sigmoid:
     def backward(self, grad_output):
         
         return grad_output * self.out * (1 - self.out)
+    
+
+class SoftMax:
+    def __init__(self):
+        self.out = None
+
+
+    def forward(x):
+        e_x = np.exp(x - np.max(x))
+        return e_x / e_x.sum(axis=0)        
+    
+    def backward(x):
+        return x 
