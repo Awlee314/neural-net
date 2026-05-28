@@ -42,14 +42,18 @@ class MSELoss:
     def __init__(self):
         self.predictions = None
         self.targets = None
-    
-    def forward(predictions, targets):
+    # get predictions from previous layer, target that we wish to get
+
+    def forward(self, predictions, targets):
+        # find difference between predction and target value
         self.predictions = predictions
         self.targets = targets
         n = len(targets)
         total = 0
         for i in range(n):
             error = predictions[i] - targets[i]    
+            # squre it to elimate negataives
+
             squared_error = error * error          
             total = total + squared_error
         
@@ -62,6 +66,8 @@ class MSELoss:
     def backward(self):
         n = len(self.targets)
         gradients = []
+        # The partial derivative dL/dp[i], derived on paper above:
+        #     dL/dp[i] = 2 * (p[i] - t[i]) / n
         for i in range(n):
             error = self.predictions[i] - self.targets[i]
             gradient = (2 * error) / n
