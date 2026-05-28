@@ -37,9 +37,34 @@ class CrossEntropyLoss:
 
 
 class MSELoss:
-    def __init__(self):
     
-    def forward(self):
+    
+    def __init__(self):
+        self.predictions = None
+        self.targets = None
+    
+    def forward(predictions, targets):
+        self.predictions = predictions
+        self.targets = targets
+        n = len(targets)
+        total = 0
+        for i in range(n):
+            error = predictions[i] - targets[i]    
+            squared_error = error * error          
+            total = total + squared_error
+        
+        # Calculate the mean
+        loss = total / n
+        
+        return loss
+            
     
     def backward(self):
+        n = len(self.targets)
+        gradients = []
+        for i in range(n):
+            error = self.predictions[i] - self.targets[i]
+            gradient = (2 * error) / n
+            gradients.append(gradient)
+        return gradients
     
