@@ -61,3 +61,31 @@ print(t.b)
 x = np.ones((2,1))
 print(x)
 print(t.forward(x))
+
+
+class ReLU:
+
+    def __init__(self):
+        self.x = None
+
+    def forward (self, x):
+        self.x = x
+        return np.maximum(0, x)
+    # When the output is greater than 0, return 1. Otherwise, return 0.
+    def backward (self,grad_output):
+        return grad_output * (self.x > 0)
+    
+
+    
+class Sigmoid:
+    def __init__(self):
+        self.out = None
+
+    def forward(self, x):
+        self.out = 1 / (1 + np.exp(-x))
+        return self.out
+    
+    # derivative of the orginal function 
+    def backward(self, grad_output):
+        
+        return grad_output * self.out * (1 - self.out)
