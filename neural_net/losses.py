@@ -20,6 +20,7 @@ class CrossEntropyLoss:
 
         self.predictions = predictions
         self.targets = targets
+        # average loss per example
         return cross_entropy_loss
 
     def backward(self):
@@ -27,9 +28,12 @@ class CrossEntropyLoss:
 
         gradient = self.predictions.copy()
         # Subtract 1 from correct classes
+        # Incorrect classes keep their value
+        # When we subtract 1 from the correct classes we are subtracting the one-hot target
+        # Gives dL/dz as dL/dp * dp/dz
         gradient = gradient[self.targets, np.arange(n)] - 1
 
-        # average over all examples
+        # average gradient per example with / n
         # gives gradient of loss with respect to output
         # grad_out as used in linear layer
         return gradient / n
