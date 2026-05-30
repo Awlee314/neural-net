@@ -15,18 +15,11 @@ class Network:
     def forward(x):
         # Loop through layers in order
         # Output of each layer becomes input of next
-        # return final output
-        
+        # return final output        
         # get all classes layers.py
 
-        layers = [
-            name for name, obj in inspect.getmembers(layers, inspect.isclass)
-            if obj.__module__ == layers.__name__
-        ]
-        # start each layer with an instance of the class
-        layer_instances = [cls() for cls in layers]
         
-        for l in layer_instances:
+        for l in self.layers:
             x = l.forward(x)
         output = x
 
