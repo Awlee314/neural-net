@@ -12,9 +12,10 @@ class Network:
     def forward(self,x):
         # Loop through layers in order
         # Output of each layer becomes input of next
-        # return final output
-               
+        # return final output        
         # get all classes layers.py
+
+        
         for l in self.layers:
             x = l.forward(x)
         output = x
