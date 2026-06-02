@@ -1,7 +1,12 @@
 import numpy as np
+import network as model
+import optimizers as op
+import layers as layers
+import losses as loss_function
+
 
 def train(model, X, y, optimizer, loss_function, 
-          epochs, batch_size):
+          epochs = 16, batch_size = 32):
     """
     For each epoch (pass through training dataset) we shuffle
     the data so that the neural net does not simply memorize the ordering.
@@ -17,3 +22,9 @@ def train(model, X, y, optimizer, loss_function,
     return loss history for a plot.
     """
     ...
+
+    
+    n = X.shape[0]
+    
+
+    
