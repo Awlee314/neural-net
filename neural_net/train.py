@@ -26,7 +26,7 @@ def train(model, X, y, optimizer, loss_function,
     losses = []
     # Find number of batches to make (need at least 1 batch)
     num_batches = math.ceil(X.shape[1] / batch_size)
-    for epoch in range(epochs):
+    for epoch in range(1,epochs+1):
         # Makes an array of indices and randomly permutes
         indices = np.random.permutation(X.shape[1])
         X_shuffled = X[:,indices]
