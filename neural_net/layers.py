@@ -99,8 +99,10 @@ class SoftMax:
 
 
     def forward(self,x):
-        e_x = np.exp(x - np.max(x))
-        return e_x / e_x.sum(axis=0)        
+        # print(type(x))
+        e_x = np.exp(x - np.max(x, axis=0, keepdims=True))
+        self.out = e_x / e_x.sum(axis=0, keepdims=True)
+        return self.out       
     
     def backward(self,x):
         # Will be paired with CrossEntropy so we do not need the full Jacobian.

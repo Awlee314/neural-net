@@ -23,9 +23,9 @@ if __name__ == "__main__":
     #print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
     model = Network([Linear(784,128), ReLU(), Linear(128,64), ReLU(), Linear(64,10), SoftMax()])
     """No adam yet """
-    sgd = SGD(lr=0.5)
+    sgd = SGD(lr=0.01)
     # 2 inputs to first linear layer then 4 inputs to next layer
     loss_func = CrossEntropyLoss()
 
-    train(model, X_train, y_train, sgd, loss_func, epochs=12)
+    train(model, X_train, y_train, sgd, loss_func, epochs=100, batch_size=64)
     

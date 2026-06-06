@@ -2,7 +2,7 @@ import numpy as np
 import network as model
 import optimizers as op
 import layers as layers
-import losses as loss_function
+from losses import *
 import math
 
 def train(model, X, y, optimizer, loss_function, 
@@ -48,9 +48,11 @@ def train(model, X, y, optimizer, loss_function,
             optimizer.step(model.parameters())
 
         losses.append(epoch_loss / num_batches)
-        if (epoch % 10 == 0):
+        if (epoch % 1 == 0):
             # Print average loss for all batches in this epoch
-            print(f"Epoch {epoch}, Loss {epoch_loss / num_batches:.4f}")
+            if(isinstance(loss_function, CrossEntropyLoss)):
+                correct_prob = np.exp(-epoch_loss / num_batches)
+            print(f"Epoch {epoch}, Loss {epoch_loss / num_batches:.4f}, correct prob {correct_prob}")
         
 
     return losses
