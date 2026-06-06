@@ -26,7 +26,7 @@ class Network:
         # Loop through layers in reverse order
         # pass layer's gradients as the input to previous one
         gradient_current = grad
-        for layer in self.layers.reverse():
+        for layer in reversed(self.layers):
             # update next gradient to previous layers gradient
             gradient_current = layer.backward(gradient_current)
     

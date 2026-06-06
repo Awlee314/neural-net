@@ -31,7 +31,7 @@ class CrossEntropyLoss:
         # Incorrect classes keep their value
         # When we subtract 1 from the correct classes we are subtracting the one-hot target
         # Gives dL/dz as dL/dp * dp/dz
-        gradient = gradient[self.targets, np.arange(n)] - 1
+        gradient[self.targets, np.arange(n)] = gradient[self.targets, np.arange(n)] - 1
 
         # average gradient per example with / n
         # gives gradient of loss with respect to output

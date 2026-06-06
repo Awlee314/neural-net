@@ -3,6 +3,7 @@ import network as model
 import optimizers as op
 import layers as layers
 import losses as loss_function
+import math
 
 def train(model, X, y, optimizer, loss_function, 
           epochs = 16, batch_size = 32):
@@ -20,32 +21,39 @@ def train(model, X, y, optimizer, loss_function,
     print the loss every few epochs to monitor the decrease in loss,
     return loss history for a plot.
     """
-    ...
-    rng = np.random.default_rng()
-    n = X.shape[0]
-    Testsize = X.shape[1]
-    temp = X.copy()
-    for i in range(epochs):
-        # shuffle colums
-        rng.shuffle(temp, axis=1)
-        result = np.array_split(temp, (Testsize // 32) + 1, axis=1)
-        outp = []
-        loss = np.zeros[len(y)]
+    # Use number of examples if smaller than batch size
+    batch_size = min(batch_size, X.shape[1])
+    losses = []
+    # Find number of batches to make (need at least 1 batch)
+    num_batches = math.ceil(X.shape[1] / batch_size)
+    for epoch in range(epochs):
+        # Makes an array of indices and randomly permutes
+        indices = np.random.permutation(X.shape[1])
+        X_shuffled = X[:,indices]
+        y_shuffled = y[indices]
+        epoch_loss = 0
         # this loop for each batch
-        for part in result:
-            cur_outp = model.forward(part)
-            outp.append(cur_outp) 
-            loss += loss_function.forward(cur_outp, y) 
+        for i in range(num_batches):
+            # Last index not included in slicing
+            X_batch = X_shuffled[:,i*batch_size:(i+1)*batch_size]
+            y_batch = y_shuffled[i*batch_size:(i+1)*batch_size]
+            # Apply forward pass onto the split parts
+            predictions = model.forward(X_batch)
+            epoch_loss += loss_function.forward(predictions, y_batch) 
             '''comput the loss and adding all the loss from each batches '''
+            # Backwards pass on split parts
             grad_out = loss_function.backward()
             model.backward(grad_out)
-            op.step(model.parameters())
+            # Update with optimizer
+            optimizer.step(model.parameters())
 
-        if (i % 10 == 0):
-            print(" this world has loss " + loss)
+        losses.append(epoch_loss / num_batches)
+        if (epoch % 10 == 0):
+            # Print average loss for all batches in this epoch
+            print(f"Epoch {epoch}, Loss {epoch_loss / num_batches:.4f}")
         
 
-
+    return losses
         
 
 

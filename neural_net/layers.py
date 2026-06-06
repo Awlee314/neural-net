@@ -10,7 +10,7 @@ class Linear:
         Thus a matrix W must be created that is of size in_features x out_features
         """
         # He initialization of weights
-        self.W = np.random.randn(in_features, out_features) * np.sqrt(2/in_features)
+        self.W = np.random.randn(out_features, in_features) * np.sqrt(2/in_features)
         # Initialize a bias for each in_feature to all zero
         # Bias same dimension as output features since it is applied to W*x
         self.b = np.zeros((out_features,1), dtype=float)
@@ -49,10 +49,11 @@ class Linear:
 
 
         self.grad_W = grad_out @ self.x.T  # dL/dW
-        self.grad_b = np.sum(grad_out) # dL/db
+        self.grad_b = np.sum(grad_out, axis=1, keepdims=True) # dL/db
         # Gradient to pass backwards
         return self.W.T @ grad_out # dL/dx
 
+"""
 in_features = 2
 out_features = 2
 t = Linear(in_features, out_features)
@@ -61,6 +62,7 @@ print(t.b)
 x = np.ones((2,1))
 print(x)
 print(t.forward(x))
+"""
 
 
 class ReLU:
@@ -96,11 +98,11 @@ class SoftMax:
         self.out = None
 
 
-    def forward(x):
+    def forward(self,x):
         e_x = np.exp(x - np.max(x))
         return e_x / e_x.sum(axis=0)        
     
-    def backward(x):
+    def backward(self,x):
         # Will be paired with CrossEntropy so we do not need the full Jacobian.
         return x
 
