@@ -13,6 +13,7 @@ class CrossEntropyLoss:
         # e.g. example 0 is label 3, example 1 is label 1 etc.
         n = targets.size # number of instances
         # Pick out the row of which label should have and the column for each example
+        # print(type(targets))
         correct_predictions = predictions[targets, np.arange(n)] 
         # Compute multiclass cross entropy loss
         # add 1e-9 to avoid log(0)
@@ -31,7 +32,8 @@ class CrossEntropyLoss:
         # Incorrect classes keep their value
         # When we subtract 1 from the correct classes we are subtracting the one-hot target
         # Gives dL/dz as dL/dp * dp/dz
-        gradient[self.targets, np.arange(n)] = gradient[self.targets, np.arange(n)] - 1
+        # gradient[self.targets, np.arange(n)] = gradient[self.targets, np.arange(n)] - 1
+        gradient[self.targets, np.arange(n)] -= 1
 
         # average gradient per example with / n
         # gives gradient of loss with respect to output

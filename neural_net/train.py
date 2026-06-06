@@ -48,9 +48,10 @@ def train(model, X, y, optimizer, loss_function,
             optimizer.step(model.parameters())
 
         losses.append(epoch_loss / num_batches)
-        if (epoch % 10 == 0):
+        if (epoch % 1 == 0):
             # Print average loss for all batches in this epoch
-            print(f"Epoch {epoch}, Loss {epoch_loss / num_batches:.4f}")
+            
+            print(f"Epoch {epoch}, Loss {epoch_loss / num_batches:.4f}, correct prob {np.exp(-epoch_loss / num_batches)}")
         
 
     return losses
