@@ -1,11 +1,12 @@
 import numpy as np
 from train import train
-from optimizers import SGD
+from optimizers import ADM, SGD
 from losses import *
 from network import *
 from layers import *
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 
 
 if __name__ == "__main__":
@@ -23,9 +24,19 @@ if __name__ == "__main__":
     #print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
     model = Network([Linear(784,128), ReLU(), Linear(128,64), ReLU(), Linear(64,10), SoftMax()])
     """No adam yet """
-    sgd = SGD(lr=0.01)
+    sgd = SGD(lr=0.001)
+    ADAM = ADM(lr=0.001)
     # 2 inputs to first linear layer then 4 inputs to next layer
     loss_func = CrossEntropyLoss()
 
-    train(model, X_train, y_train, sgd, loss_func, epochs=100, batch_size=64)
+    lossforSGD = train(model, X_train, y_train, sgd, loss_func, epochs=23, batch_size=64)
+    lossforADAM = train(model, X_train, y_train, ADAM, loss_func, epochs=23, batch_size=64)
+    # plotting the loss for both optimizers
+    plt.plot(lossforSGD, label='SGD')
+    plt.plot(lossforADAM, label='ADAM')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Training Loss')
+    plt.legend()
+    plt.show()
     
