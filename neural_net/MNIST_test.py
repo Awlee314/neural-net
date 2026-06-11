@@ -32,13 +32,19 @@ if __name__ == "__main__":
 
     lossforSGD = train(model_sgd, X_train, y_train, sgd, loss_func, epochs=23, batch_size=64)
     lossforADAM = train(model_adam, X_train, y_train, ADAM, loss_func, epochs=10, batch_size=64)
-
+    correctCount = []
+    TotalCount = []
     for i in range(len(y_test)):
         if i < 50:
-
+            
             print(f"Expected digit is: {y_test[i]}")
             predicted = np.argmax(model_adam.forward(X_test[:,i:i+1]))
             print(f"Predicted digit is: {predicted}")
+            TotalCount.append(1)
+            if predicted == y_test[i]:
+                correctCount.append(1)
+    print(f"Accuracy of the model is: {sum(correctCount)/sum(TotalCount)*100}%")
+
 
     # plotting the loss for both optimizers
     plt.plot(lossforSGD, label='SGD')
