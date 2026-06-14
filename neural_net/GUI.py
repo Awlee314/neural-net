@@ -76,7 +76,7 @@ class Visualizer:
         self.draw_network()
 
     #  Drawing board 
-    """ e is event that user is drawing on the canvas, then  """
+    """ e is event that user is drawing on the canvas, which the mouse cursor x and y position that use drag """
     def paint(self, e):
         r = 10
         self.draw_canvas.create_oval(e.x-r, e.y-r, e.x+r, e.y+r,
@@ -122,8 +122,12 @@ class Visualizer:
         ...
 
     def forward_capture(self, x):
-        # TODO: run model layer by layer, collect output after each
-        # Linear/SoftMax layer. return (activations_list, final_output)
+        activations = [x]
+        for layer in self.model.layers:
+            out = layer.forward(out)
+            if isinstance(layer, (Linear, SoftMax)):
+                activations.append(out) 
+        return activations, out
         ...
 
     def act_color(self, value, vmax):
