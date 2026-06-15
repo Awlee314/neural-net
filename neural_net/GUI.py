@@ -71,8 +71,8 @@ class Visualizer:
         self.net_canvas = tk.Canvas(frame, width=NET_W, height=NET_H, bg=BG_COLOR)  
         self.net_canvas.pack(side=tk.LEFT, padx=10, pady=10)
 
-        self.sizes = self.layer_sizes()
-        self.positions = self.node_positions(self.sizes)
+        
+        self.positions = self.node_positions(self.layer_sizes())
         self.draw_network()
 
     #  Drawing board 
@@ -90,6 +90,23 @@ class Visualizer:
         self.draw_network()
 
     def preprocess(self):
+        img = np.asarray(self.image)
+        if img.max() == 0 :
+            return None
+        rows = np.any(img > 0, axis = 1)
+        cols = np.any(img > 0, axis = 0)
+        r_min, r_max = np.where(rows)[0][0,-1]
+        c_min, c_max = np.where(cols)[0][0,-1]
+        digit = img[r_min: r_max+1, c_min: c_max+1]
+        # bounding box 
+
+        """ Finish it tomorow """
+
+
+
+
+
+
         # TODO: crop bbox, scale to 20x20, center in 28x28,
         # normalize /255, return (784,1) — or None if blank
         ...
@@ -99,9 +116,17 @@ class Visualizer:
 #  Network structure 
     def layer_sizes(self):
         size = []
+        flag = True
         for layer in self.model.layers:
+            temp = [2] 
+           
             if isinstance(layer, Linear):
-                size.append(layer.W)
+                # print(layer.W.shape)
+                if flag :
+                    size.append(layer.W.shape[1])
+                    flag = False 
+                size.append(layer.W.shape[0])
+                
         return size
         # read [784,128,64,10] from Linear W shapes
         # (W is (in, out): shape[0]=in for first layer, then shape[1]=out)
@@ -110,19 +135,37 @@ class Visualizer:
 
 # How to get the node positions
 # 
-    def node_positions(self, sizes):
+    def node_positions(self,sizes):
         nodes = []
-        for x in range(sizes.W.shape[0]):
-            for y in range(sizes.W.shape[1]):
-                nodes.append((x,y))
+        """
+        temp = [2] 
+        temp[0] = layer.w.shape[1]
+        temp[1] = layer.w.shape[0]
+        node.append(temp)
+
+        """
+
+        numLayers = len(sizes)
+        for idx,size in enumerate(sizes):
+            visible_node = min(MAX_NODES,size)
+            x = int(NET_W * ((idx + 1) /( numLayers+1)) )
+            # Oli fourmala 
+            temp = []
+            for yidx in range(visible_node):
+                y = int(NET_H * ((yidx + 1) /( visible_node+1)) )
+                temp.append([x, y])
+            nodes.append(temp)
         return nodes
                 # get the position of each node in the layer and store it in a list of lists
                 # return list of lists of (x,y) positions for each node in each layer
         # (x,y) for up to MAX_NODES per layer; return list of lists
         ...
+    """
 
+     """
     def forward_capture(self, x):
         activations = [x]
+        out = x
         for layer in self.model.layers:
             out = layer.forward(out)
             if isinstance(layer, (Linear, SoftMax)):
