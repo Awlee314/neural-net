@@ -1,5 +1,6 @@
 import tkinter as tk
 import numpy as np
+from scipy.ndimage import center_of_mass,shift 
 from PIL import Image, ImageDraw
 
 from network import Network
@@ -50,8 +51,10 @@ class Visualizer:
         self.draw_canvas = tk.Canvas(left, width=DRAW_SIZE, height=DRAW_SIZE, bg="black", cursor="cross")
         self.draw_canvas.pack()
         # drag motion of mouse with left button held
-
+        self.last_xy = None
         self.draw_canvas.bind("<B1-Motion>", self.paint)
+        self.draw_canvas.bind("<ButtonRelease-1>", self.release)
+        
         """ Use PIL to convert take of output of canvas and convert it to an image in pixel array that the model can use. """
         self.image = Image.new("L", (DRAW_SIZE, DRAW_SIZE), 'BLACK')
         self.draw = ImageDraw.Draw(self.image)
@@ -79,9 +82,20 @@ class Visualizer:
     """ e is event that user is drawing on the canvas, which the mouse cursor x and y position that use drag """
     def paint(self, e):
         r = 10
+        if self.last_xy is not None:
+            x_prev, y_prev = self.last_xy
+            self.draw_canvas.create_line(x_prev, y_prev, e.x, e.y,
+                                         fill="white", width=r*2,
+                                         capstyle=tk.ROUND, smooth=True)
+            self.draw.line([x_prev, y_prev, e.x, e.y], fill=255, width=r*2)
         self.draw_canvas.create_oval(e.x-r, e.y-r, e.x+r, e.y+r,
                                      fill="white", outline="white")
         self.draw.ellipse([e.x-r, e.y-r, e.x+r, e.y+r], fill=255)
+        self.last_xy = (e.x, e.y)
+
+    def release(self, e):
+        self.last_xy = None
+        self.predict()   # live prediction on mouse-up!
 
     def clear(self):
         self.draw_canvas.delete("all")
@@ -95,8 +109,8 @@ class Visualizer:
             return None
         rows = np.any(img > 0, axis = 1)
         cols = np.any(img > 0, axis = 0)
-        r_min, r_max = np.where(rows)[0][0,-1]
-        c_min, c_max = np.where(cols)[0][0,-1]
+        r_min, r_max = np.where(rows)[0][[0,-1]]
+        c_min, c_max = np.where(cols)[0][[0,-1]]
         digit = img[r_min: r_max+1, c_min: c_max+1]
         # bounding box 
 
@@ -107,13 +121,43 @@ class Visualizer:
 
         """
 
+        height, width = digit.shape
+        
+        if height > width:
+            Newheight = 20
+            NewWidth = max(1, round(( width*20) / height))
+        else:
+            NewWidth = 20
+            Newheight = max(1, round((height *20) /width ))
+        # scale factor
+        """
+        Method is 
+        if h > w 
+            h be map to 20 
+            some factor h * f = 20
+            f = 20 / h
+            apply f onto w
+            w * (20 /h )
+            using max to elimate zero
+        """
+        pil_digit = Image.fromarray(digit.astype(np.uint8))
+        pil_digit = pil_digit.resize((Newheight, NewWidth),Image.LANCZOS)
+        pil_digit = np.array(pil_digit)
+        grid = np.zeros((28,28))
+        startx = (28- NewWidth) // 2
+        starty = (28 - Newheight) //2
+        # center it 
+        grid[startx:startx + NewWidth,starty:starty+Newheight ] = pil_digit
+        # copy paste it on the 28 x 28 grid in the center 
+        cy, cx = center_of_mass(grid)
+        if not (np.isnan(cy) or np.isnan(cx)):
+            shifty, shiftx = 14 - cy, 14 - cx
+            grid = shift(grid, [shifty, shiftx], mode='constant', cval=0)
+        """ most width is, make width in the "perfect" center  """
+        grid = grid.reshape(784,1)
+        grid = grid / 255.0
+        return grid
 
-
-
-
-
-        # TODO: crop bbox, scale to 20x20, center in 28x28,
-        # normalize /255, return (784,1) — or None if blank
         ...
 
 
@@ -198,13 +242,11 @@ class Visualizer:
         activations, out = self.forward_capture(x)
         digit = int(np.argmax(out, axis=0)[0])
         self.label.config(text=f"Prediction: {digit}")
-        self.draw_network(activations)
+        # self.draw_network(activations)
 
 
 if __name__ == "__main__":
-    model = Network([Linear(784,128), ReLU(),
-                     Linear(128,64), ReLU(),
-                     Linear(64,10), SoftMax()])
+
     model = load_model('mnist_weights.npz')
 
     root = tk.Tk()
