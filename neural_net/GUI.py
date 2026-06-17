@@ -100,7 +100,12 @@ class Visualizer:
         digit = img[r_min: r_max+1, c_min: c_max+1]
         # bounding box 
 
-        """ Finish it tomorow """
+        """ Finish it tomorow 
+         resize boundbox to 20 x 20 
+            Place it within 28 x 28 
+        and centered the normalize it /255.0
+
+        """
 
 
 
@@ -161,7 +166,7 @@ class Visualizer:
         # (x,y) for up to MAX_NODES per layer; return list of lists
         ...
     """
-
+    record each forward outputs for each layers 
      """
     def forward_capture(self, x):
         activations = [x]
