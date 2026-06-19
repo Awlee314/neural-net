@@ -1,7 +1,7 @@
 import tkinter as tk
 import numpy as np
 from scipy.ndimage import center_of_mass,shift 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageTk
 
 from network import Network
 from layers import Linear, ReLU, SoftMax
@@ -9,6 +9,7 @@ from MNIST_test import load_model
 
 # config for GUI layout and drawing
 NET_W, NET_H = 600, 600
+MID_SIZE = 200
 DRAW_SIZE = 280
 MAX_NODES = 12
 BG_COLOR = 'White'
@@ -68,6 +69,12 @@ class Visualizer:
         self.label = tk.Label(left, text="Draw a digit", font=("Arial", 16))
         self.label.pack()
 
+        middle = tk.Frame(frame)
+        middle.pack(side=tk.LEFT, padx=10)
+        tk.Label(middle, text="Network Sees", font=("Arial", 12)).pack()
+        self.seen_canvas = tk.Canvas(middle, width=MID_SIZE, height=MID_SIZE, bg="black")
+        self.seen_canvas.pack()
+
         # View the network nodes, edges 
         # Connect to right with frame and canvas with frame and make the show on the frame
         #
@@ -81,7 +88,7 @@ class Visualizer:
     #  Drawing board 
     """ e is event that user is drawing on the canvas, which the mouse cursor x and y position that use drag """
     def paint(self, e):
-        r = 10
+        r = 6
         if self.last_xy is not None:
             x_prev, y_prev = self.last_xy
             self.draw_canvas.create_line(x_prev, y_prev, e.x, e.y,
@@ -101,6 +108,7 @@ class Visualizer:
         self.draw_canvas.delete("all")
         self.draw.rectangle([0, 0, DRAW_SIZE, DRAW_SIZE], fill=0)
         self.label.config(text="Draw a digit")
+        self.seen_canvas.delete("all")
         self.draw_network()
 
     def preprocess(self):
@@ -141,13 +149,13 @@ class Visualizer:
             using max to elimate zero
         """
         pil_digit = Image.fromarray(digit.astype(np.uint8))
-        pil_digit = pil_digit.resize((Newheight, NewWidth),Image.LANCZOS)
+        pil_digit = pil_digit.resize((NewWidth, Newheight),Image.LANCZOS)
         pil_digit = np.array(pil_digit)
         grid = np.zeros((28,28))
         startx = (28- NewWidth) // 2
         starty = (28 - Newheight) //2
         # center it 
-        grid[startx:startx + NewWidth,starty:starty+Newheight ] = pil_digit
+        grid[starty:starty+Newheight, startx:startx + NewWidth] = pil_digit
         # copy paste it on the 28 x 28 grid in the center 
         cy, cx = center_of_mass(grid)
         if not (np.isnan(cy) or np.isnan(cx)):
@@ -239,10 +247,31 @@ class Visualizer:
         if x is None:
             self.label.config(text="Draw something first!")
             return
+        # Show the networks img
+        self.show_midimage(x)
         activations, out = self.forward_capture(x)
         digit = int(np.argmax(out, axis=0)[0])
         self.label.config(text=f"Prediction: {digit}")
         # self.draw_network(activations)
+
+    def show_midimage(self, preprocessed):
+        """Display the 28x28 preprocessed image scaled up."""
+        if preprocessed is None:
+            self.seen_canvas.delete("all")
+            return
+        # Reshape (784,1) back to (28,28) and scale to [0,255]
+        img = (preprocessed.reshape(28,28)*255).astype(np.uint8)
+
+        # Convert to PIL image then upscale
+        pil = Image.fromarray(img, mode='L')
+        pil = pil.resize((MID_SIZE,MID_SIZE), Image.NEAREST)
+
+        # Convert to Tkinter image
+        self.mid_tk_image = ImageTk.PhotoImage(pil)
+
+        # Display
+        self.seen_canvas.delete("all")
+        self.seen_canvas.create_image(0,0, anchor=tk.NW, image=self.mid_tk_image)
 
 
 if __name__ == "__main__":
