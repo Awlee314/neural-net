@@ -64,14 +64,14 @@ if __name__ == "__main__":
     save_model(model_adam, 'mnist_weights.npz')
     correctCount = 0
     TotalCount = len(y_test)
-    for i in range(TotalCount):
-            print(f"Expected digit is: {y_test[i]}")
+    for i in range(len(y_test)):
+            # print(f"Expected digit is: {y_test[i]}")
             predicted = np.argmax(model_adam.forward(X_test[:,i:i+1]))
-            print(f"Predicted digit is: {predicted}")
-            TotalCount += 1
+            # print(f"Predicted digit is: {predicted}")
+            
             if predicted == y_test[i]:
                 correctCount += 1
-    print(f"Accuracy of the model is: {sum(correctCount)/sum(TotalCount)*100}%")
+    print(f"Accuracy of the model is: {correctCount/len(y_test)*100}%")
 
 
     # plotting the loss for both optimizers
